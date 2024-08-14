@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shirt List</title>
+</head>
+{% load static %}
+<style>
+    body {
+        text-align: center;
+        background-color: beige;
+        color: black;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+    }
+    .logout-button {
+        text-align: right;
+        margin: 20px;
+    }
+    .logout-button a {
+        text-decoration: none;
+    }
+    .logout-button button {
+        background-color: yellowgreen;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    h1 {
+        margin: 20px 0;
+        text-decoration: underline;
+    }
+    .cart-info {
+        margin: 20px 0;
+        font-size: larger;
+    }
+    .product {
+        border: 1px solid gold;
+        border-radius: 1px;
+        padding: 1px;
+        margin: 2px;
+        display: inline-block;
+        background-color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .product img {
+        max-width: 300px;
+        height: 380px;
+        border-bottom: 2px solid gold;
+        margin-bottom: 5px;
+    }
+    .product .front {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    .product .back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .product:hover .back {
+        opacity: 1;
+    }
+    .product:hover .front {
+        opacity: 0;
+    }
+    .product button {
+        background-color: yellowgreen;
+        border: none;
+        padding: 5px;
+        font-size: large;
+        margin: 1px;
+        cursor: pointer;
+    }
+    .product a {
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    
+    
+    
+    .container {
+  position: relative;
+  width: 100%;
+}
+
+.image {
+  display: block;
+  width: 1%;
+  height: auto;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 100%;
+  right: 0;
+  background-color: #008CBA;
+  overflow: hidden;
+  width: 0;
+  height: 100%;
+  transition: .5s ease;
+}
+
+.container:hover .overlay {
+  width: 100%;
+  left: 0;
+}
+
+
+
+
+
+.header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 100px; 
+            background-color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px; 
+        }
+        .header img {
+            width: 100px;
+            height: 100px;
+        }
+        .header h1 {
+            margin: 0;
+            flex: 1; 
+            text-align: center;
+            font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        }
+    
+        .header h2 {
+            margin: 0;
+            flex: 0.13;
+            text-align: left;
+        }
+        .content {
+            padding-top: 120px; 
+        }
+        
+.messages{
+    color: red;
+}
+* {box-sizing: border-box}
+.mySlides1, .mySlides2 {display: none}
+img {vertical-align: middle;}
+
+/* Slideshow container */
+.slideshow-container {
+  max-width: 1000px;
+  position: relative;
+  margin: auto;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: black;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+/* Position the "next button" to the right */
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+.prev {
+  left: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a grey background color */
+.prev:hover, .next:hover {
+  background-color: brown;
+  color: black;
+}
+</style>
+<script>
+    function toggleFavorite(shirtId, currentState) {
+    const form = document.getElementById(`favorite-form-${shirtId}`);
+    const image = document.getElementById(`favorite-image-${shirtId}`);
+
+    let newState;
+    let newImageSrc;
+    let newActionUrl;
+
+    if (currentState === 'True') {
+        newState = 'False';
+        newImageSrc = "{% static 'myapp/white_heart.jpg' %}";
+        newActionUrl = "{% url 'remove_favorite' shirt_id=0 %}".replace('0', shirtId);
+    } else {
+        newState = 'True';
+        newImageSrc = "{% static 'myapp/red_heart_jpg.jpg' %}";
+        newActionUrl = "{% url 'add_favorite' shirt_id=0 %}".replace('0', shirtId);
+    }
+
+    form.action = newActionUrl;
+    image.src = newImageSrc;
+
+    form.querySelector('input[name="shirt_id"]').value = shirtId;
+
+    form.submit();
+}
+let slideIndex = [1,1];
+let slideId = ["mySlides1", "mySlides2"]
+showSlides(1, 0);
+showSlides(1, 1);
+
+function plusSlides(n, no) {
+  showSlides(slideIndex[no] += n, no);
+}
+
+function showSlides(n, no) {
+  let i;
+  let x = document.getElementsByClassName(slideId[no]);
+  if (n > x.length) {slideIndex[no] = 1}    
+  if (n < 1) {slideIndex[no] = x.length}
+  for (i = 0; i < x.length; i++) {
+     x[i].style.display = "none";  
+  }
+  x[slideIndex[no]-1].style.display = "block";  
+}
+</script>
+
+
+
+<body>
+    <div class="header">
+        <a href="{% url 'company_details' %}">
+            <img src="{% static 'myapp/k.jpeg' %}" alt="Company Logo">
+            
+        </a>
+        <h1>Kiran Cloth Store</h1>
+        <h3>
+        {% if user.is_authenticated %}
+        
+        <a href="{% url 'logout' %}"><img src="{% static 'myapp/logout2.jpg' %}" style="width: 60px;height: 70px;"></a>
+    {% else %}
+        <a href="{% url 'login' %}"><img src="{% static 'myapp/login2.jpg' %}" style="width: 60px;height: 70px;"></a> | <a href="{% url 'register' %}"><img src="{% static 'myapp/register2.jpg' %}" style="width: 60px;height: 70px;"></a>
+    {% endif %}</h3>
+    <a href="{% url 'favorite_list' %}" ><img src="{% static 'myapp/white_heart.jpg' %}" style="width:40px;height: 40px;"></a>
+    
+    <h2><img src="{% static 'myapp/cart6.jpg' %}" style="width: 50px;height: 70px;"></h2>
+
+    </div><br><br><br><br><br><br>
+    
+    <p>Welcome, {{ user.username }}!</p>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div>
+        {% if cart_count > 0 %}
+            <a href="{% url 'billing' %}">Go to Billing</a>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+        
+    </div>
+   
+
+
+<div class="slideshow-container">
+  <div class="mySlides1">
+    <img src="{% static 'myapp/suite2.jpeg' %}"" style="width:50%">
+  </div>
+
+  <div class="mySlides1">
+    <img src="{% static 'myapp/suite1.jpeg' %}"" style="width:50%">
+  </div>
+
+  <div class="mySlides1">
+    <img src="{% static 'myapp/suite2.jpeg' %}" style="width:50%">
+  </div>
+
+  <a class="prev" onclick="plusSlides(-1, 0)">&#10094;</a>
+  <a class="next" onclick="plusSlides(1, 0)">&#10095;</a>
+</div>
+
+<p>Slideshow 2:</p>
+<div class="slideshow-container">
+  <div class="mySlides2">
+    <img src="{% static 'myapp/suite2.jpeg' %}" style="width:50%">
+  </div>
+
+  <div class="mySlides2">
+    <img src="{% static 'myapp/suite.jpeg' %}" style="width:50%">
+  </div>
+
+  <div class="mySlides2">
+    <img src="{% static 'myapp/suite3.jpeg' %}"style="width:0%">
+  </div>
+
+  <a class="prev" onclick="plusSlides(-1, 1)">&#10094;</a>
+  <a class="next" onclick="plusSlides(1, 1)">&#10095;</a>
+</div>
+
+
+    
+    {% for shirt in shirts %}
+    <div class="product">
+        <div class="container">
+            <a href="{% url 'shirt_detail' shirt.id %}">
+                <img src="{{ shirt.image.url }}" alt="{{ shirt.name }}" width="300">
+            </a>
+            <div class="overlay">
+                <a href="{% url 'shirt_detail' shirt.id %}">
+                <div class="image"><img src="{{ shirt.back_image.url }}" alt="Back view of {{ shirt.name }}" class="back"></div>
+                </a>
+            </div>
+        </div><br>
+        
+        
+        <div style="display: flex; align-items: center; justify-content: flex-end;">
+            <!-- Favorite icon -->
+            <form id="favorite-form-{{ shirt.id }}" action="{% url 'add_favorite' shirt.id %}" method="post" style="margin-right: 10px;">
+                {% csrf_token %}
+                <input type="hidden" name="shirt_id" value="{{ shirt.id }}">
+                <img id="favorite-image-{{ shirt.id }}" 
+                     src="{% if shirt.is_favorite %}{% static 'myapp/red_heart_jpg.jpg' %}{% else %}{% static 'myapp/white_heart.jpg' %}{% endif %}"
+                     alt="Favorite"
+                     style="cursor: pointer; width: 30px; height: 30px;
+                     "onclick="toggleFavorite({{ shirt.id }}, '{{ shirt.is_favorite }}'); return false;">
+            </form></div>
+
+
+        <strong>{{ shirt.name }}</strong> - ${{ shirt.price }}<br>
+        Sizes: {{ shirt.sizes }}<br>
+        <p>{{ shirt.description }}</p>
+    
+        
+        <form action="{% url 'shirt_detail' shirt.id %}" method="get">
+            {% csrf_token %}
+            <button type="submit",value="small">S</button>
+            <button type="submit",value="medium">M</button>
+            <button type="submit",value="large">L</button>
+            <button type="submit",value="extra_large">xl</button>
+        </form> 
+    </div>
+    {% endfor %}    
+</body>
+</html>

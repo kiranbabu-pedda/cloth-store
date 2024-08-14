@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Placed</title>
+</head>
+{% load static %}
+<style>
+          body {
+            text-align: center;
+            background-image: url("{% static 'myapp/bg3.jpeg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+        }
+        .logout-button {
+            text-align: right;
+            margin: 20px;
+        }
+        .logout-button a {
+            text-decoration: none;
+        }
+        .logout-button button {
+            background-color: yellowgreen;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+</style>
+<body>
+    <div class="logout-button">
+    <a href="{% url 'logout' %}"><button>Logout</button></a>
+</div>
+    <br><br><br><br><br>
+
+    <h1>Your Order is Placed</h1>
+    <p>Thank you for your order! Please rate our service and provide feedback.</p>
+    <a href="{% url 'shirts_list' %}">Back to shopping</a>
+</body>
+</html>

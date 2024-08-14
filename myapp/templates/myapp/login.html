@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+{% load static %}
+<style>
+    body {
+        text-align: center;
+        background-image: url("{% static 'myapp/bg4.jpeg' %}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        color: black;
+    }
+    a {
+        background-color: yellowgreen;
+        border: 20px;
+        padding: 10px;
+        font-size: larger;
+        text-align: center;
+    }
+</style>
+<body>
+    <br><br><br><br>
+    <h1>Login</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

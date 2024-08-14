@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About KRN Foods</title>
+</head>
+{% load static %}
+<style>
+          body {
+            text-align: center;
+            background-image: url("{% static 'myapp/FB_IMG_15963412858217518.jpg' %}");
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+</style>
+<body>
+
+    <h1>KRN Cloth STORE </h1>
+    <h4>since : 1992</h4>
+    <p><br><br><br>
+        <address><u><b>Address:</b></u><div> cpi colony,<br>
+                gooty(town),<br>
+                Anatapur(distict),<br>
+                andhra_pradesh(state),<br>
+                india(country).</div><br></address>
+    </p>
+    <p><u><b>Quote</b></u>:<i><pre>fashion makes you look amazing!<br>
+but, character makes you worthy</pre></i></p>
+    <h2>Customer Reviews</h2>
+    {% for review in reviews %}
+        <p>{{ review.user.username }}: {{ review.review_text }} ({{ review.rating }}/5)</p>
+    {% endfor %}
+    <a href="{% url 'shirts_list' %}">Back to Home</a>
+</body>
+</html>

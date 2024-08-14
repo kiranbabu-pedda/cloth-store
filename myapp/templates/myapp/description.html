@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ shirt.name }}</title>
+</head>
+<body>
+    <h1>{{ shirt.name }}</h1>
+    <img src="{{ shirt.image.url }}" alt="{{ shirt.name }}" width="300">
+    <p>{{ shirt.description }}</p>
+    <p>Price: ${{ shirt.price }}</p>
+    <p>Sizes available:</p>
+    <ul>
+        <li>Small: {{ shirt.small_stock }}</li>
+        <li>Medium: {{ shirt.medium_stock }}</li>
+        <li>Large: {{ shirt.large_stock }}</li>
+        <li>Extra Large: {{ shirt.extra_large_stock }}</li>
+    </ul>
+    <a href="{% url 'shirts_list' %}">Back to shirt list</a>
+    <form action="{% url 'add_to_cart' shirt.id %}" method="post">
+        {% csrf_token %}
+        <select name="size">
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+            <option value="extra_large">Extra Large</option>
+        </select>
+        <button type="submit">Add to Cart</button>
+    </form>
+    <form action="{% url 'buy_now' shirt.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Buy Now</button>
+    </form>   
+</div>
+</body>
+</html>
