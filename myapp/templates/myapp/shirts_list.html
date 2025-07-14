@@ -154,8 +154,12 @@
     color: red;
 }
 * {box-sizing: border-box}
-.mySlides1, .mySlides2 {display: none}
+.mySlides {display: none}
 img {vertical-align: middle;}
+
+.mySlides.active {
+  display: block;
+}
 
 /* Slideshow container */
 .slideshow-container {
@@ -195,51 +199,70 @@ img {vertical-align: middle;}
   background-color: brown;
   color: black;
 }
+.products-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.product {
+  width: 300px;
+  margin: 10px;
+}
 </style>
 <script>
     function toggleFavorite(shirtId, currentState) {
-    const form = document.getElementById(`favorite-form-${shirtId}`);
     const image = document.getElementById(`favorite-image-${shirtId}`);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    let newState;
-    let newImageSrc;
-    let newActionUrl;
+    let url, newImageSrc, newState;
 
     if (currentState === 'True') {
-        newState = 'False';
+        url = "{% url 'remove_favorite' shirt_id=0 %}".replace('0', shirtId);
         newImageSrc = "{% static 'myapp/white_heart.jpg' %}";
-        newActionUrl = "{% url 'remove_favorite' shirt_id=0 %}".replace('0', shirtId);
+        newState = 'False';
     } else {
-        newState = 'True';
+        url = "{% url 'add_favorite' shirt_id=0 %}".replace('0', shirtId);
         newImageSrc = "{% static 'myapp/red_heart_jpg.jpg' %}";
-        newActionUrl = "{% url 'add_favorite' shirt_id=0 %}".replace('0', shirtId);
+        newState = 'True';
     }
 
-    form.action = newActionUrl;
-    image.src = newImageSrc;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            image.src = newImageSrc;
+            // Update the onclick state dynamically
+            image.setAttribute('onclick', `toggleFavorite(${shirtId}, '${newState}')`);
+        } else {
+            console.error("Favorite toggle failed.");
+        }
+    })
+    .catch(error => {
+        console.error("Error toggling favorite:", error);
+    });
 
-    form.querySelector('input[name="shirt_id"]').value = shirtId;
-
-    form.submit();
+    return false;
 }
-let slideIndex = [1,1];
-let slideId = ["mySlides1", "mySlides2"]
-showSlides(1, 0);
-showSlides(1, 1);
+let slideIndex = 1;
+showSlides(slideIndex);
 
-function plusSlides(n, no) {
-  showSlides(slideIndex[no] += n, no);
+function plusSlides(n) {
+  showSlides(slideIndex += n);
 }
 
-function showSlides(n, no) {
+function showSlides(n) {
   let i;
-  let x = document.getElementsByClassName(slideId[no]);
-  if (n > x.length) {slideIndex[no] = 1}    
-  if (n < 1) {slideIndex[no] = x.length}
-  for (i = 0; i < x.length; i++) {
-     x[i].style.display = "none";  
+  const slides = document.getElementsByClassName("mySlides");
+  if (n > slides.length) { slideIndex = 1 }
+  if (n < 1) { slideIndex = slides.length }
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
   }
-  x[slideIndex[no]-1].style.display = "block";  
+  slides[slideIndex - 1].style.display = "block";
 }
 </script>
 
@@ -287,42 +310,19 @@ function showSlides(n, no) {
 
 
 <div class="slideshow-container">
-  <div class="mySlides1">
-    <img src="{% static 'myapp/suite2.jpeg' %}"" style="width:50%">
+  {% for shirt in shirts %}
+  <div class="mySlides {% if forloop.first %}active{% endif %}">
+    <a href="{% url 'shirt_detail' shirt.id %}">
+      <img src="{{ shirt.image.url }}" style="width:30%">
+    </a>
   </div>
-
-  <div class="mySlides1">
-    <img src="{% static 'myapp/suite1.jpeg' %}"" style="width:50%">
-  </div>
-
-  <div class="mySlides1">
-    <img src="{% static 'myapp/suite2.jpeg' %}" style="width:50%">
-  </div>
-
-  <a class="prev" onclick="plusSlides(-1, 0)">&#10094;</a>
-  <a class="next" onclick="plusSlides(1, 0)">&#10095;</a>
+  {% endfor %}
+  
+  <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+  <a class="next" onclick="plusSlides(1)">&#10095;</a>
 </div>
 
-<p>Slideshow 2:</p>
-<div class="slideshow-container">
-  <div class="mySlides2">
-    <img src="{% static 'myapp/suite2.jpeg' %}" style="width:50%">
-  </div>
-
-  <div class="mySlides2">
-    <img src="{% static 'myapp/suite.jpeg' %}" style="width:50%">
-  </div>
-
-  <div class="mySlides2">
-    <img src="{% static 'myapp/suite3.jpeg' %}"style="width:0%">
-  </div>
-
-  <a class="prev" onclick="plusSlides(-1, 1)">&#10094;</a>
-  <a class="next" onclick="plusSlides(1, 1)">&#10095;</a>
-</div>
-
-
-    
+<div class="products-wrapper"></div>
     {% for shirt in shirts %}
     <div class="product">
         <div class="container">
@@ -338,16 +338,18 @@ function showSlides(n, no) {
         
         
         <div style="display: flex; align-items: center; justify-content: flex-end;">
-            <!-- Favorite icon -->
-            <form id="favorite-form-{{ shirt.id }}" action="{% url 'add_favorite' shirt.id %}" method="post" style="margin-right: 10px;">
-                {% csrf_token %}
-                <input type="hidden" name="shirt_id" value="{{ shirt.id }}">
-                <img id="favorite-image-{{ shirt.id }}" 
-                     src="{% if shirt.is_favorite %}{% static 'myapp/red_heart_jpg.jpg' %}{% else %}{% static 'myapp/white_heart.jpg' %}{% endif %}"
-                     alt="Favorite"
-                     style="cursor: pointer; width: 30px; height: 30px;
-                     "onclick="toggleFavorite({{ shirt.id }}, '{{ shirt.is_favorite }}'); return false;">
-            </form></div>
+    <!-- Favorite icon -->
+    <form id="favorite-form-{{ shirt.id }}" method="post" style="margin-right: 10px;">
+        {% csrf_token %}
+        <input type="hidden" name="shirt_id" value="{{ shirt.id }}">
+        <img id="favorite-image-{{ shirt.id }}" 
+             src="{% if shirt.is_favorite %}{% static 'myapp/red_heart_jpg.jpg' %}{% else %}{% static 'myapp/white_heart.jpg' %}{% endif %}"
+             alt="Favorite"
+             style="cursor: pointer; width: 30px; height: 30px;"
+             onclick="toggleFavorite({{ shirt.id }}, '{{ shirt.is_favorite }}'); return false;">
+    </form>
+</div>
+
 
 
         <strong>{{ shirt.name }}</strong> - ${{ shirt.price }}<br>
