@@ -2,34 +2,150 @@
 <html>
 <head>
     <title>{{ shirt.name }}</title>
+    {% load static %}
+    <style>
+        body {
+            text-align: center;
+            background-color: beige;
+            color: black;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 100px;
+            background-color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+        .header img {
+            width: 100px;
+            height: 100px;
+        }
+        .header h1 {
+            margin: 0;
+            flex: 1;
+            text-align: center;
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        }
+        .header h3 {
+            margin: 0;
+            flex: 0.13;
+            text-align: left;
+        }
+        .content {
+            padding-top: 120px;
+            max-width: 800px;
+            margin: auto;
+            text-align: left;
+            background-color: white;
+            padding: 30px;
+            border: 1px solid gold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .content img {
+            max-width: 70%;
+            height: auto;
+            border-bottom: 2px solid gold;
+            margin-bottom: 10px;
+        }
+        .content h2 {
+            margin-top: 0;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+        }
+        button {
+            background-color: yellowgreen;
+            border: none;
+        }
+        a {
+            text-decoration: none;
+            color: brown;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>{{ shirt.name }}</h1>
-    <img src="{{ shirt.image.url }}" alt="{{ shirt.name }}" width="300">
-    <p>{{ shirt.description }}</p>
-    <p>Price: ${{ shirt.price }}</p>
-    <p>Sizes available:</p>
-    <ul>
-        <li>Small: {{ shirt.small_stock }}</li>
-        <li>Medium: {{ shirt.medium_stock }}</li>
-        <li>Large: {{ shirt.large_stock }}</li>
-        <li>Extra Large: {{ shirt.extra_large_stock }}</li>
-    </ul>
-    <a href="{% url 'shirts_list' %}">Back to shirt list</a>
-    <form action="{% url 'add_to_cart' shirt.id %}" method="post">
-        {% csrf_token %}
-        <select name="size">
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-            <option value="extra_large">Extra Large</option>
-        </select>
-        <button type="submit">Add to Cart</button>
-    </form>
-    <form action="{% url 'buy_now' shirt.id %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Buy Now</button>
-    </form>   
-</div>
+    <div class="header">
+        <a href="{% url 'company_details' %}">
+            <img src="{% static 'myapp/k.jpeg' %}" alt="Company Logo">
+        </a>
+        <h1>Kiran Cloth Store</h1>
+        <h3>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}">
+                    <img src="{% static 'myapp/logout2.jpg' %}" style="width: 60px;height: 70px;">
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}">
+                    <img src="{% static 'myapp/login2.jpg' %}" style="width: 60px;height: 70px;">
+                </a>
+                |
+                <a href="{% url 'register' %}">
+                    <img src="{% static 'myapp/register2.jpg' %}" style="width: 60px;height: 70px;">
+                </a>
+            {% endif %}
+        </h3>
+    </div>
+
+    <div class="content">
+        <h2>{{ shirt.name }}</h2>
+        <img src="{{ shirt.image.url }}" alt="{{ shirt.name }}">
+        <p>{{ shirt.description }}</p>
+        <p><strong>Price:</strong> ${{ shirt.price }}</p>
+
+        <h3>Available Sizes & Stock:</h3>
+        <ul>
+            <li>Small: {{ shirt.small_stock }}</li>
+            <li>Medium: {{ shirt.medium_stock }}</li>
+            <li>Large: {{ shirt.large_stock }}</li>
+            <li>Extra Large: {{ shirt.extra_large_stock }}</li>
+        </ul>
+
+        <a href="{% url 'shirts_list' %}">← Back to Shirt List</a>
+
+        <hr>
+
+        <form action="{% url 'add_to_cart' shirt.id %}" method="post">
+            {% csrf_token %}
+            <label for="size">Choose size:</label>
+            <select name="size" id="size" required>
+                <option value="">--Select--</option>
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+                <option value="extra_large">Extra Large</option>
+            </select>
+            <button type="submit">Add to Cart</button>
+        </form>
+
+        <form action="{% url 'buy_now' shirt.id %}" method="post">
+    {% csrf_token %}
+    <label for="size-buy">Choose size:</label>
+    <select name="size" id="size-buy" required>
+        <option value="">--Select--</option>
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+        <option value="extra_large">Extra Large</option>
+    </select>
+    <button type="submit">Buy Now</button>
+</form>
+    </div>
 </body>
 </html>
