@@ -62,7 +62,7 @@ This is a full-stack Django-based eCommerce platform built to showcase a shirt s
 ```bash
 # Clone the repository
 git clone https://github.com/KIRANBABU-PEDDA/CLOTH-STORE
-cd shirt-store
+cd CLOTH-STORE
 
 # Create and activate a virtual environment
 python -m venv env
