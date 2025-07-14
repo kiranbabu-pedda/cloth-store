@@ -108,25 +108,54 @@ def register_view(request):
 def place_order(request):
     if request.method == 'POST':
         cart_items = CartItem.objects.filter(user=request.user)
+        
+        if not cart_items.exists():
+            messages.error(request, "Your cart is empty.")
+            return redirect('shirts_list')
+        
+        # Process order and update stock
         for item in cart_items:
-            Order.objects.create(user=request.user, product=item.product, quantity=item.quantity)
             size = item.size
             stock_field = f'{size}_stock'
-            current_stock = getattr(item.product, stock_field)
+
+            current_stock = getattr(item.product, stock_field, None)
+            if current_stock is None:
+                messages.error(request, f"Invalid size '{size}' for product {item.product.name}.")
+                return redirect('billing')
+            
+            if current_stock < item.quantity:
+                messages.error(request, f"Not enough stock for {item.product.name} size {size}. Available: {current_stock}")
+                return redirect('billing')
+            
+            # Create order
+            Order.objects.create(user=request.user, product=item.product, quantity=item.quantity)
+
+            # Decrease stock
             setattr(item.product, stock_field, current_stock - item.quantity)
             item.product.save()
-            
-        review_text = request.POST.get('review', '')
-        rating = int(request.POST.get('rating', 0))
-        
+
+        # Clear cart
+        cart_items.delete()
+
+        # Handle review and rating safely
+        review_text = request.POST.get('review', '').strip()
+        try:
+            rating = int(request.POST.get('rating', 0))
+        except (ValueError, TypeError):
+            rating = 0
+
         if review_text and 1 <= rating <= 5:
             Review.objects.create(user=request.user, review_text=review_text, rating=rating)
+            messages.success(request, "Thank you for your review!")
+
+        messages.success(request, "Your order has been placed successfully!")
         return render(request, 'myapp/order_placed.html')
+    
     return redirect('shirts_list')
 
 @login_required
 def update_cart(request, cart_item_id, action):
-    cart_item = get_object_or_404(CartItem, id=cart_item_id)
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, user=request.user)
     product = cart_item.product
     size = cart_item.size
 
